@@ -3,7 +3,7 @@ const mysql = require('mysql2');
 
 const db = mysql.createConnection({
   host: 'localhost',
-  port: 3306,
+  port: 135,
   user: 'root',
   password: 'Dekem123!',
   database: 'employee_db'
@@ -12,38 +12,44 @@ const db = mysql.createConnection({
 db.connect(function (err) {
   if (err) throw err;
   console.log('Successful Connection');
-  menuLoad();
+  menuload();
 });
 
 function menuLoad() {
-  return inquirer
-    .prompt([
-      {
-        type: 'list',
-        message: 'The following options allow you to view employees as well as add them',
-        name: 'choices',
-        choices: [
-          'View all Departments',
-          'View all Roles',
-          'View Employees',
-          'Add an Employee',
-          'Add Department',
-          'Add Role',
-          'Update an Employee',
-          'Quit'
-        ]
-      },
-    ])
-    .then(function (response) {
-      if (response.choices === 'view all Departments') viewDepartment();
-      if (response.choices === 'View all Roles') viewRoles();
-      if (response.choices === 'View Employee') viewEmployees();
-      if (response.choices === 'Add an Employee') addEmployee();
-      if (response.choices === 'Add Department') addDept();
-      if (response.choices === 'Add Role') addRole();
-      if (response.choices === 'Update an Employee') updateEmployee();
-      if (response.choices === 'Quit') db.end();
-    });
+  let running = true;
+  while (running) {
+    inquirer
+      .prompt([
+        {
+          type: 'list',
+          message: 'The following options allow you to view employees as well as add them',
+          name: 'choices',
+          choices: [
+            'View all Departments',
+            'View all Roles',
+            'View Employees',
+            'Add an Employee',
+            'Add Department',
+            'Add Role',
+            'Update an Employee',
+            'Quit'
+          ]
+        },
+      ])
+      .then(function (response) {
+        if (response.choices === 'view all Departments') viewDepartment();
+        if (response.choices === 'View all Roles') viewRoles();
+        if (response.choices === 'View Employee') viewEmployees();
+        if (response.choices === 'Add an Employee') addEmployee();
+        if (response.choices === 'Add Department') addDept();
+        if (response.choices === 'Add Role') addRole();
+        if (response.choices === 'Update an Employee') updateEmployee();
+        if (response.choices === 'Quit') {
+          db.end();
+          running = false;
+        };
+      });
+  }
 };
 
 function viewDepartment() {
@@ -52,7 +58,7 @@ function viewDepartment() {
       console.log(err);
     };
     console.table(results);
-    menuLoad();
+    // menuload();
   });
 };
 
@@ -63,7 +69,7 @@ function viewEmployees() {
     };
     console.log(results)
     console.table(results);
-    menuLoad();
+    // menuload();
   });
 };
 
@@ -73,7 +79,7 @@ function viewRoles() {
       console.log(err);
     };
     console.table(results);
-    menuLoad();
+    // menuload();
   });
 };
 
@@ -89,7 +95,7 @@ function addDept() {
     db.query(`INSERT INTO department (dept_name) VALUES (?)`,
       [answers.dept_name],
       (err, results) => {
-        menuLoad();
+        // menuload();
       }
     );
   });
@@ -123,7 +129,7 @@ function addRole() {
         (err, results) => {
           if (err) console.log(err);
           console.log(answers);
-          menuLoad();
+          // menuload();
         }
       );
     }
@@ -158,7 +164,7 @@ function addEmployee() {
         (err, results) => {
           if (err) console.log(err);
           console.log(answers);
-          menuLoad();
+          // menuload();
         }
       );
     })
@@ -168,46 +174,46 @@ function addEmployee() {
 function updateEmployee() {
   var roleResults;
   db.query(
-      `SELECT id AS value, title AS name FROM role`, (err, roles) => {
-          if (err) {
-              console.log(err)
-              return;
-          }
-          roleResults = roles;
-      });
+    `SELECT id AS value, title AS name FROM role`, (err, roles) => {
+      if (err) {
+        console.log(err)
+        return;
+      }
+      roleResults = roles;
+    });
   db.query(
-      `SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employee`, (err, employees) => {
-          if (err) console.log(err);
-          inquirer.prompt(
-              [
-                  {
-                      message: 'Choose employee',
-                      type: 'list',
-                      name: 'employees',
-                      choices: employees
-                  },
-                  {
-                      message: 'Choose new role',
-                      type: 'list',
-                      name: 'role',
-                      choices: roleResults
-                  },
-              ]
-          ).then((answers) => {
-              var employeeName = answers.employees.split(' ');
-              var employeeFirstName = employeeName[0];
-              var employeeLastName = employeeName[employeeName.length - 1];
+    `SELECT id, CONCAT(first_name, ' ', last_name) AS name FROM employee`, (err, employees) => {
+      if (err) console.log(err);
+      inquirer.prompt(
+        [
+          {
+            message: 'Choose employee',
+            type: 'list',
+            name: 'employees',
+            choices: employees
+          },
+          {
+            message: 'Choose new role',
+            type: 'list',
+            name: 'role',
+            choices: roleResults
+          },
+        ]
+      ).then((answers) => {
+        var employeeName = answers.employees.split(' ');
+        var employeeFirstName = employeeName[0];
+        var employeeLastName = employeeName[employeeName.length - 1];
 
-              db.query(
-                  'UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?',
-                  [answers.role, employeeFirstName, employeeLastName],
-                  (err, results) => {
-                      if (err) console.log(err);
-                      console.log(results);
-                      menuLoad();
-                  }
-              );
+        db.query(
+          'UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?',
+          [answers.role, employeeFirstName, employeeLastName],
+          (err, results) => {
+            if (err) console.log(err);
+            console.log(results);
+            // menuload();
           }
-          )
-      });
+        );
+      }
+      )
+    });
 }
