@@ -35,14 +35,14 @@ function menuLoad() {
       },
     ])
     .then(function (response) {
-      if (response.choices === 'view all Departments') viewDepartment();
-      if (response.choices === 'View all Roles') viewRoles();
-      if (response.choices === 'View Employee') viewEmployees();
-      if (response.choices === 'Add an Employee') addEmployee();
-      if (response.choices === 'Add Department') addDept();
-      if (response.choices === 'Add Role') addRole();
-      if (response.choices === 'Update an Employee') updateEmployee();
-      if (response.choices === 'Quit') db.end();
+      if (response.choices === 'View all Departments') {viewDepartment();}
+      if (response.choices === 'View all Roles') {viewRoles();}
+      if (response.choices === 'View Employees') {viewEmployees();}
+      if (response.choices === 'Add an Employee') {addEmployee();}
+      if (response.choices === 'Add Department') {addDept();}
+      if (response.choices === 'Add Role') {addRole();}
+      if (response.choices === 'Update an Employee') {updateEmployee();}
+      if (response.choices === 'Quit') {db.end();}
     });
 };
 
@@ -61,7 +61,6 @@ function viewEmployees() {
     if (err) {
       console.log(err);
     };
-    console.log(results)
     console.table(results);
     menuLoad();
   });
