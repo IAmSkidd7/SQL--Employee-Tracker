@@ -61,6 +61,7 @@ function viewEmployees() {
     if (err) {
       console.log(err);
     };
+    console.log(results)
     console.table(results);
     menuLoad();
   });
